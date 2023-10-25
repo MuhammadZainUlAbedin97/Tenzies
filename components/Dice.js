@@ -1,8 +1,17 @@
+"use client"
+
+import { useState, useEffect } from 'react'
+
 export default function Dice(props){
-    console.log(props)
+    const [isClient, setIsClient] = useState(false)
+ 
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
     return(
-        <div className="dice">
-            {props.count}
+        isClient &&
+        <div className={props.count.locked ? "green-dice":"dice"} onClick={()=>props.lockDice(props.count.id)}>
+            {props.count.value}
         </div>
     )
 }
