@@ -10,6 +10,8 @@ const ConfettiComponent = dynamic(() => import('@/components/Confetti'), { ssr: 
 
 
 export default function Home() {
+  const [showConfetti, setShowConfetti] = useState(false)
+  const [newGame, setNewGame] = useState(false)
   const generateDiceValues = () => {
     const valueArray = []
     for(let i = 0; i < 10; i++){
@@ -20,10 +22,26 @@ export default function Home() {
 
   const [diceState, setDiceState] = useState(generateDiceValues())
 
+  useEffect(()=>{
+    const firstLocked = diceState.find((dieState)=> dieState.locked === true)
+    const areAllValuesSame = diceState.every((dieState)=> dieState.value === firstLocked?.value)
+    if(areAllValuesSame){
+      setShowConfetti(true)
+      setNewGame(true)
+    }
+  },[diceState])
+
+
   const rollDice = () => {
-    setDiceState((prev)=>(prev.map((dieState)=>(
-      dieState.locked ? dieState : {...dieState, value: Math.ceil(Math.random()*6)} 
+    setShowConfetti(false)
+    setNewGame(false)
+    if(newGame){
+      setDiceState(generateDiceValues)
+    }else{
+      setDiceState((prev)=>(prev.map((dieState)=>(
+        dieState.locked ? dieState : {...dieState, value: Math.ceil(Math.random()*6)} 
     ))))
+    }
   }
 
   const renderDices = () => {
@@ -45,7 +63,7 @@ export default function Home() {
   }
   return (
     <main className="main-container">
-    <ConfettiComponent/>
+    {showConfetti && <ConfettiComponent/>}
       <div className="game-container">
         <div className="dice-container">
           <h1>Tenzies</h1>
@@ -54,7 +72,7 @@ export default function Home() {
             renderDices()
           }
           </div>
-          <button className="roll-btn" onClick={()=>rollDice()}>Roll</button>
+          <button className="roll-btn" onClick={()=>rollDice()}>{newGame ? "Start":"Roll"}</button>
         </div>
       </div>
     </main>
